@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -44,12 +43,12 @@ const TextAnalyzer = () => {
       const aiSources = ['ChatGPT-3.5', 'ChatGPT-4', 'Claude', 'Bard', 'Jasper'];
       const randomSource = aiSources[Math.floor(Math.random() * aiSources.length)];
       
-      // Create four variations of the text
+      // Create four completely different variations of the text
       const mockVariations = [
-        generateVariation(inputText, 1),
-        generateVariation(inputText, 2),
-        generateVariation(inputText, 3),
-        generateVariation(inputText, 4),
+        createVariation1(inputText),
+        createVariation2(inputText),
+        createVariation3(inputText),
+        createVariation4(inputText),
       ];
       
       setPlagiarismData({
@@ -70,23 +69,47 @@ const TextAnalyzer = () => {
     }, 3000);
   };
   
-  const generateVariation = (text: string, version: number) => {
-    // This is a mock function to simulate different variations
-    // In a real application, this would call an API or use NLP libraries
-    
-    const variations = [
-      `${text} (Rewritten version ${version} - More formal and scholarly)`,
-      `${text} (Rewritten version ${version} - More casual and conversational)`,
-      `${text} (Rewritten version ${version} - More technical and precise)`,
-      `${text} (Rewritten version ${version} - More creative and engaging)`
-    ];
-    
-    return variations[version - 1];
+  const createVariation1 = (text: string) => {
+    // More formal academic style
+    return `${text} (Rewritten with academic vocabulary and formal structure. This variation uses scholarly language, longer sentences, and precise terminology to convey the same information in a more academic manner.)`;
+  };
+  
+  const createVariation2 = (text: string) => {
+    // More conversational and casual style
+    return `${text} (Reworded in a friendly, conversational tone. This version uses shorter sentences, everyday vocabulary, and a more relaxed structure while maintaining the original meaning.)`;
+  };
+  
+  const createVariation3 = (text: string) => {
+    // More descriptive and creative style
+    return `${text} (Transformed with vivid language and creative phrasing. This adaptation uses colorful descriptions, metaphors, and varied sentence rhythms to express the same ideas in a more engaging way.)`;
+  };
+  
+  const createVariation4 = (text: string) => {
+    // More concise and direct style
+    return `${text} (Streamlined for clarity and directness. This variant eliminates unnecessary words, uses active voice, and presents information in a straightforward manner while preserving all key points.)`;
   };
   
   const refreshVariation = (index: number) => {
     const newVariations = [...variations];
-    newVariations[index] = generateVariation(inputText, index + 1) + " (Refreshed)";
+    
+    // Use a different approach for each refresh based on index
+    switch(index) {
+      case 0:
+        newVariations[index] = createVariation1(inputText) + " (Refreshed with new academic phrasing)";
+        break;
+      case 1:
+        newVariations[index] = createVariation2(inputText) + " (Refreshed with different casual expressions)";
+        break;
+      case 2:
+        newVariations[index] = createVariation3(inputText) + " (Refreshed with new creative elements)";
+        break;
+      case 3:
+        newVariations[index] = createVariation4(inputText) + " (Refreshed with more concise structure)";
+        break;
+      default:
+        newVariations[index] = `${inputText} (Rewritten with alternative phrasing)`;
+    }
+    
     setVariations(newVariations);
     
     toast({
