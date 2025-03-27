@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, RefreshCw, Search, Zap } from 'lucide-react';
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import PlagiarismScore from './PlagiarismScore';
 import HumanizedVariations from './HumanizedVariations';
 import AnalysisSummary from './AnalysisSummary';
@@ -20,6 +21,7 @@ const TextAnalyzer = () => {
   });
   
   const [variations, setVariations] = useState<string[]>([]);
+  const { toast } = useToast();
 
   const analyzeText = () => {
     if (!inputText.trim()) {
@@ -135,15 +137,15 @@ const TextAnalyzer = () => {
       {!showResults ? (
         <div className="space-y-6 animate-fade-in">
           <div className="text-center space-y-3 mb-8">
-            <h2 className="text-3xl font-bold tracking-tight">
-              AI Content Humanizer & Plagiarism Detector
+            <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent">
+              WriteRight-AI: Content Humanizer & Plagiarism Detector
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Detect AI-generated text, analyze plagiarism, and transform content into undetectable human-like writing.
             </p>
           </div>
           
-          <div className="glass-card p-6">
+          <div className="glass-card p-6 bg-gradient-to-b from-white/90 to-white/70 dark:from-gray-900/90 dark:to-gray-900/70">
             <div className="mb-4">
               <label htmlFor="content" className="block text-sm font-medium text-foreground mb-2">
                 Paste your content
@@ -151,7 +153,7 @@ const TextAnalyzer = () => {
               <Textarea
                 id="content"
                 placeholder="Enter or paste your content here to analyze and humanize..."
-                className="min-h-[200px] resize-y"
+                className="min-h-[200px] resize-y border-indigo-100 focus-visible:ring-indigo-300 dark:border-indigo-900"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
               />
@@ -161,7 +163,7 @@ const TextAnalyzer = () => {
               <Button 
                 onClick={analyzeText} 
                 disabled={isAnalyzing || !inputText.trim()}
-                className="space-x-2 min-w-[150px]"
+                className="space-x-2 min-w-[150px] bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
               >
                 {isAnalyzing ? (
                   <>
@@ -181,8 +183,14 @@ const TextAnalyzer = () => {
       ) : (
         <div className="space-y-8 animate-fade-in">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">Analysis Results</h2>
-            <Button variant="outline" onClick={resetAnalysis}>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
+              Analysis Results
+            </h2>
+            <Button 
+              variant="outline" 
+              onClick={resetAnalysis}
+              className="border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:hover:bg-indigo-900/40"
+            >
               New Analysis
             </Button>
           </div>
@@ -194,15 +202,15 @@ const TextAnalyzer = () => {
             
             <div className="lg:col-span-2 space-y-4">
               <div className="bg-card rounded-lg shadow-sm border p-4">
-                <div className="flex space-x-1 mb-4">
+                <div className="flex space-x-1 mb-4 border-b">
                   <button
-                    className={`px-4 py-2 text-sm font-medium transition-all ${currentTab === 'variations' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`px-4 py-2 text-sm font-medium transition-all ${currentTab === 'variations' ? 'border-b-2 border-indigo-500 text-indigo-500' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setCurrentTab('variations')}
                   >
                     Humanized Variations
                   </button>
                   <button
-                    className={`px-4 py-2 text-sm font-medium transition-all ${currentTab === 'summary' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`px-4 py-2 text-sm font-medium transition-all ${currentTab === 'summary' ? 'border-b-2 border-indigo-500 text-indigo-500' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => setCurrentTab('summary')}
                   >
                     Analysis Summary

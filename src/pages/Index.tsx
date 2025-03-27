@@ -14,7 +14,7 @@ const Index = () => {
       <footer className="border-t py-6 bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
           <div className="mb-4 md:mb-0">
-            © {new Date().getFullYear()} Plagiwise Humanize. All rights reserved.
+            © {new Date().getFullYear()} WriteRight-AI. All rights reserved.
           </div>
           <div className="flex space-x-6">
             <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
