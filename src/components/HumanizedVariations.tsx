@@ -1,211 +1,183 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { RefreshCw, Copy, Check, BookOpen, Zap } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
-import { Progress } from "@/components/ui/progress";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { CopyCheck, RefreshCw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface HumanizedVariationsProps {
-  variations: string[];
-  onRefresh: (index: number) => void;
   originalText: string;
+  variations: {
+    type: string;
+    text: string;
+    label: string;
+    description: string;
+    color: string;
+    readabilityScore: number;
+    similarityScore: number;
+  }[];
+  onRefreshVariation: (type: string) => void;
+  onSelectVariation: (text: string) => void;
 }
 
-const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({ 
-  variations, 
-  onRefresh,
-  originalText
+const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
+  originalText,
+  variations,
+  onRefreshVariation,
+  onSelectVariation
 }) => {
   const { toast } = useToast();
-  const [selectedVariation, setSelectedVariation] = useState(0);
-  const [copied, setCopied] = useState<number | null>(null);
-  const [readabilityScores, setReadabilityScores] = useState<number[]>([]);
-  const [similarity, setSimilarity] = useState(0);
-  
-  useEffect(() => {
-    // Calculate mock readability scores when variations change
-    const generateReadabilityScores = () => {
-      return variations.map((variation, index) => {
-        // Mock readability scores - in a real app would use an algorithm
-        const baseScore = 65 + (index * 5); // Different base scores
-        // Add some randomness
-        return Math.min(98, Math.max(60, baseScore + Math.floor(Math.random() * 15)));
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [copiedVariation, setCopiedVariation] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, type: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedVariation(type);
+      toast({
+        title: "Copied to clipboard",
+        description: `The ${type} variation has been copied to your clipboard.`,
       });
-    };
-    
-    // Calculate similarity percentage with original
-    const calculateSimilarity = () => {
-      if (!variations[selectedVariation] || !originalText) return 0;
-      // This is a simplified mock calculation - real implementation would use NLP
-      const varLen = variations[selectedVariation].length;
-      const origLen = originalText.length;
-      const diff = Math.abs(varLen - origLen);
-      // Return inverse similarity (lower difference = higher similarity)
-      return Math.max(0, Math.min(100, 100 - Math.floor((diff / origLen) * 100)));
-    };
-    
-    setReadabilityScores(generateReadabilityScores());
-    setSimilarity(calculateSimilarity());
-  }, [variations, selectedVariation, originalText]);
-  
-  const copyToClipboard = (text: string, index: number) => {
-    navigator.clipboard.writeText(text);
-    setCopied(index);
-    
-    toast({
-      title: "Copied to clipboard",
-      description: "The humanized text has been copied to your clipboard.",
+      
+      setTimeout(() => {
+        setCopiedVariation(null);
+      }, 2000);
     });
-    
-    setTimeout(() => {
-      setCopied(null);
-    }, 2000);
   };
-  
-  // Get readability color based on score
+
+  const getReadabilityLabel = (score: number) => {
+    if (score >= 90) return "Very Easy";
+    if (score >= 80) return "Easy";
+    if (score >= 70) return "Fairly Easy";
+    if (score >= 60) return "Standard";
+    if (score >= 50) return "Fairly Difficult";
+    if (score >= 30) return "Difficult";
+    return "Very Difficult";
+  };
+
+  const getSimilarityLabel = (score: number) => {
+    if (score >= 90) return "Very Similar";
+    if (score >= 70) return "Similar";
+    if (score >= 50) return "Moderately Changed";
+    if (score >= 30) return "Significantly Changed";
+    return "Completely Different";
+  };
+
   const getReadabilityColor = (score: number) => {
-    if (score >= 90) return "text-green-500";
-    if (score >= 80) return "text-emerald-500";
-    if (score >= 70) return "text-blue-500";
-    if (score >= 60) return "text-amber-500";
-    return "text-orange-500";
+    if (score >= 80) return "bg-green-500";
+    if (score >= 60) return "bg-blue-500";
+    if (score >= 40) return "bg-yellow-500";
+    return "bg-red-500";
   };
-  
-  // Get progress color based on score
-  const getProgressColor = (score: number) => {
-    if (score >= 90) return "bg-green-500";
-    if (score >= 80) return "bg-emerald-500";
-    if (score >= 70) return "bg-blue-500";
-    if (score >= 60) return "bg-amber-500";
-    return "bg-orange-500";
+
+  const getSimilarityColor = (score: number) => {
+    if (score >= 80) return "bg-red-500";
+    if (score >= 60) return "bg-orange-500";
+    if (score >= 40) return "bg-yellow-500";
+    return "bg-green-500";
   };
-  
-  // Colors for variation tabs
-  const colors = [
-    "from-blue-400 to-indigo-500",
-    "from-emerald-400 to-teal-500",
-    "from-amber-400 to-orange-500",
-    "from-purple-400 to-pink-500"
-  ];
+
+  const toggleExpandCard = (type: string) => {
+    if (expandedCard === type) {
+      setExpandedCard(null);
+    } else {
+      setExpandedCard(type);
+    }
+  };
 
   return (
-    <div className="animate-fade-in">
-      <div className="flex overflow-x-auto space-x-2 pb-3">
-        {variations.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedVariation(index)}
-            className={`px-4 py-2 rounded-t-lg text-sm font-medium whitespace-nowrap transition-all ${
-              selectedVariation === index 
-                ? `bg-gradient-to-r ${colors[index]} text-white shadow-sm`
-                : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-            }`}
-          >
-            Variation {index + 1}
-            {readabilityScores[index] && (
-              <span className={`ml-2 text-xs ${selectedVariation === index ? 'text-white/90' : getReadabilityColor(readabilityScores[index])}`}>
-                {readabilityScores[index]}%
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-      
-      <div className="border rounded-lg p-4 mt-2 bg-white dark:bg-gray-900 min-h-[200px]">
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex items-center">
-            <h4 className={`text-sm font-medium bg-gradient-to-r ${colors[selectedVariation]} bg-clip-text text-transparent`}>
-              Humanized Version {selectedVariation + 1}
-            </h4>
-            <div className="ml-3 flex items-center">
-              <BookOpen className="w-3.5 h-3.5 mr-1" />
-              <span className={`text-xs font-medium ${getReadabilityColor(readabilityScores[selectedVariation] || 0)}`}>
-                Readability: {readabilityScores[selectedVariation] || 0}%
-              </span>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      {variations.map((variation) => (
+        <Card 
+          key={variation.type}
+          className={`relative transition-all overflow-hidden hover:shadow-md ${
+            expandedCard === variation.type ? 'h-auto' : 'h-[300px]'
+          }`}
+          style={{ borderTop: `4px solid ${variation.color}` }}
+        >
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <span style={{ color: variation.color }}>{variation.label}</span>
+                </CardTitle>
+                <CardDescription>{variation.description}</CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => onRefreshVariation(variation.type)}
+                className="flex-shrink-0"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
             </div>
-          </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onRefresh(selectedVariation)}
-              className="h-8"
-            >
-              <RefreshCw className="h-3.5 w-3.5 mr-1" />
-              <span className="text-xs">Refresh</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => copyToClipboard(variations[selectedVariation], selectedVariation)}
-              className="h-8"
-            >
-              {copied === selectedVariation ? (
-                <>
-                  <Check className="h-3.5 w-3.5 mr-1 text-green-500" />
-                  <span className="text-xs">Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3.5 w-3.5 mr-1" />
-                  <span className="text-xs">Copy</span>
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-        
-        <div className="mb-3">
-          <Progress 
-            value={readabilityScores[selectedVariation] || 0} 
-            className="h-1.5" 
-            indicatorClassName={getProgressColor(readabilityScores[selectedVariation] || 0)}
-          />
-        </div>
-        
-        <div className="prose prose-sm max-w-none dark:prose-invert">
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">
-            {variations[selectedVariation] || 'No variation available.'}
-          </p>
-        </div>
-      </div>
-      
-      <div className="mt-6 border-t pt-4">
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex items-center">
-            <h4 className="text-sm font-medium text-muted-foreground">Original Text</h4>
-            <div className="ml-4 flex items-center">
-              <Zap className="w-3.5 h-3.5 mr-1 text-amber-500" />
-              <span className="text-xs font-medium">
-                Similarity: {similarity}%
-              </span>
+            <div className="flex flex-col space-y-2 mt-2">
+              <div className="flex justify-between text-xs">
+                <span>Readability: {getReadabilityLabel(variation.readabilityScore)}</span>
+                <span>{variation.readabilityScore}%</span>
+              </div>
+              <Progress 
+                value={variation.readabilityScore} 
+                className={`h-2 ${getReadabilityColor(variation.readabilityScore)}`}
+              />
+              
+              <div className="flex justify-between text-xs mt-1">
+                <span>Similarity to Original: {getSimilarityLabel(variation.similarityScore)}</span>
+                <span>{variation.similarityScore}%</span>
+              </div>
+              <Progress 
+                value={variation.similarityScore}
+                className={`h-2 ${getSimilarityColor(variation.similarityScore)}`}
+              />
             </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => copyToClipboard(originalText, -1)}
-            className="h-7"
-          >
-            {copied === -1 ? (
-              <>
-                <Check className="h-3 w-3 mr-1 text-green-500" />
-                <span className="text-xs">Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="h-3 w-3 mr-1" />
-                <span className="text-xs">Copy</span>
-              </>
+          </CardHeader>
+          <CardContent className={`relative ${
+            expandedCard === variation.type ? 'max-h-none' : 'max-h-24 overflow-hidden'
+          }`}>
+            <p className="text-sm text-foreground/90">
+              {variation.text}
+            </p>
+            {expandedCard !== variation.type && (
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent"></div>
             )}
-          </Button>
-        </div>
-        <div className="prose prose-sm max-w-none dark:prose-invert bg-muted/50 p-3 rounded-md">
-          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-            {originalText}
-          </p>
-        </div>
-      </div>
+          </CardContent>
+          <CardFooter className="flex justify-between mt-auto">
+            <Button
+              variant="ghost"
+              onClick={() => toggleExpandCard(variation.type)}
+              className="text-xs"
+            >
+              {expandedCard === variation.type ? 'Show Less' : 'Show More'}
+            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={() => onSelectVariation(variation.text)}
+              >
+                Use This
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className={`text-xs ${copiedVariation === variation.type ? 'bg-green-100 text-green-800 border-green-300' : ''}`}
+                onClick={() => copyToClipboard(variation.text, variation.type)}
+              >
+                {copiedVariation === variation.type ? (
+                  <>
+                    <CopyCheck className="h-3 w-3 mr-1" />
+                    Copied
+                  </>
+                ) : (
+                  'Copy'
+                )}
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      ))}
     </div>
   );
 };
