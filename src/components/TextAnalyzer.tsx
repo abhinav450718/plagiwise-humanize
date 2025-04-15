@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, RefreshCw, Search, Zap } from 'lucide-react';
+import { ArrowRight, RefreshCw, Search } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import PlagiarismScore from './PlagiarismScore';
 import HumanizedVariations from './HumanizedVariations';
@@ -20,8 +19,57 @@ const TextAnalyzer = () => {
     aiSource: '',
   });
   
-  const [variations, setVariations] = useState<string[]>([]);
+  const [variations, setVariations] = useState<{
+    type: string;
+    text: string;
+    label: string;
+    description: string;
+    color: string;
+    readabilityScore: number;
+    similarityScore: number;
+  }[]>([]);
+
   const { toast } = useToast();
+
+  const createVariation1 = (text: string) => ({
+    type: 'academic',
+    text: text + ' (Rewritten with academic vocabulary and formal structure)',
+    label: 'Academic',
+    description: 'Formal academic style with scholarly language',
+    color: '#8B5CF6',
+    readabilityScore: Math.floor(Math.random() * 20) + 70,
+    similarityScore: Math.floor(Math.random() * 30) + 60,
+  });
+  
+  const createVariation2 = (text: string) => ({
+    type: 'casual',
+    text: text + ' (Reworded in a friendly, conversational tone)',
+    label: 'Conversational',
+    description: 'Casual and friendly tone',
+    color: '#0EA5E9',
+    readabilityScore: Math.floor(Math.random() * 20) + 80,
+    similarityScore: Math.floor(Math.random() * 30) + 50,
+  });
+  
+  const createVariation3 = (text: string) => ({
+    type: 'creative',
+    text: text + ' (Transformed with vivid language and creative phrasing)',
+    label: 'Creative',
+    description: 'Creative and engaging style',
+    color: '#D946EF',
+    readabilityScore: Math.floor(Math.random() * 20) + 75,
+    similarityScore: Math.floor(Math.random() * 30) + 40,
+  });
+  
+  const createVariation4 = (text: string) => ({
+    type: 'concise',
+    text: text + ' (Streamlined for clarity and directness)',
+    label: 'Concise',
+    description: 'Clear and direct style',
+    color: '#F97316',
+    readabilityScore: Math.floor(Math.random() * 20) + 85,
+    similarityScore: Math.floor(Math.random() * 30) + 70,
+  });
 
   const analyzeText = () => {
     if (!inputText.trim()) {
@@ -37,7 +85,6 @@ const TextAnalyzer = () => {
     
     // Simulate API call with timeout
     setTimeout(() => {
-      // This is mock data - in a real app, this would come from an API
       const mockScore = Math.floor(Math.random() * 80) + 20;
       const mockAiGenerated = Math.floor(Math.random() * 60) + 40;
       const mockHumanWritten = 100 - mockAiGenerated;
@@ -45,7 +92,7 @@ const TextAnalyzer = () => {
       const aiSources = ['ChatGPT-3.5', 'ChatGPT-4', 'Claude', 'Bard', 'Jasper'];
       const randomSource = aiSources[Math.floor(Math.random() * aiSources.length)];
       
-      // Create four completely different variations of the text
+      // Create variations with proper structure
       const mockVariations = [
         createVariation1(inputText),
         createVariation2(inputText),
@@ -71,46 +118,24 @@ const TextAnalyzer = () => {
     }, 3000);
   };
   
-  const createVariation1 = (text: string) => {
-    // More formal academic style
-    return `${text} (Rewritten with academic vocabulary and formal structure. This variation uses scholarly language, longer sentences, and precise terminology to convey the same information in a more academic manner.)`;
-  };
-  
-  const createVariation2 = (text: string) => {
-    // More conversational and casual style
-    return `${text} (Reworded in a friendly, conversational tone. This version uses shorter sentences, everyday vocabulary, and a more relaxed structure while maintaining the original meaning.)`;
-  };
-  
-  const createVariation3 = (text: string) => {
-    // More descriptive and creative style
-    return `${text} (Transformed with vivid language and creative phrasing. This adaptation uses colorful descriptions, metaphors, and varied sentence rhythms to express the same ideas in a more engaging way.)`;
-  };
-  
-  const createVariation4 = (text: string) => {
-    // More concise and direct style
-    return `${text} (Streamlined for clarity and directness. This variant eliminates unnecessary words, uses active voice, and presents information in a straightforward manner while preserving all key points.)`;
-  };
-  
-  const refreshVariation = (index: number) => {
-    const newVariations = [...variations];
-    
-    // Use a different approach for each refresh based on index
-    switch(index) {
-      case 0:
-        newVariations[index] = createVariation1(inputText) + " (Refreshed with new academic phrasing)";
-        break;
-      case 1:
-        newVariations[index] = createVariation2(inputText) + " (Refreshed with different casual expressions)";
-        break;
-      case 2:
-        newVariations[index] = createVariation3(inputText) + " (Refreshed with new creative elements)";
-        break;
-      case 3:
-        newVariations[index] = createVariation4(inputText) + " (Refreshed with more concise structure)";
-        break;
-      default:
-        newVariations[index] = `${inputText} (Rewritten with alternative phrasing)`;
-    }
+  const refreshVariation = (type: string) => {
+    const newVariations = variations.map(variation => {
+      if (variation.type === type) {
+        switch (type) {
+          case 'academic':
+            return createVariation1(inputText);
+          case 'casual':
+            return createVariation2(inputText);
+          case 'creative':
+            return createVariation3(inputText);
+          case 'concise':
+            return createVariation4(inputText);
+          default:
+            return variation;
+        }
+      }
+      return variation;
+    });
     
     setVariations(newVariations);
     
@@ -119,7 +144,7 @@ const TextAnalyzer = () => {
       description: "A new variation has been generated.",
     });
   };
-  
+
   const resetAnalysis = () => {
     setInputText('');
     setShowResults(false);
@@ -204,13 +229,17 @@ const TextAnalyzer = () => {
               <div className="bg-card rounded-lg shadow-sm border p-4">
                 <div className="flex space-x-1 mb-4 border-b">
                   <button
-                    className={`px-4 py-2 text-sm font-medium transition-all ${currentTab === 'variations' ? 'border-b-2 border-indigo-500 text-indigo-500' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`px-4 py-2 text-sm font-medium transition-all ${
+                      currentTab === 'variations' ? 'border-b-2 border-indigo-500 text-indigo-500' : 'text-muted-foreground hover:text-foreground'
+                    }`}
                     onClick={() => setCurrentTab('variations')}
                   >
                     Humanized Variations
                   </button>
                   <button
-                    className={`px-4 py-2 text-sm font-medium transition-all ${currentTab === 'summary' ? 'border-b-2 border-indigo-500 text-indigo-500' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`px-4 py-2 text-sm font-medium transition-all ${
+                      currentTab === 'summary' ? 'border-b-2 border-indigo-500 text-indigo-500' : 'text-muted-foreground hover:text-foreground'
+                    }`}
                     onClick={() => setCurrentTab('summary')}
                   >
                     Analysis Summary
@@ -220,9 +249,10 @@ const TextAnalyzer = () => {
                 <div className="mt-4">
                   {currentTab === 'variations' ? (
                     <HumanizedVariations 
-                      variations={variations} 
-                      onRefresh={refreshVariation}
                       originalText={inputText}
+                      variations={variations}
+                      onRefreshVariation={refreshVariation}
+                      onSelectVariation={(text) => setInputText(text)}
                     />
                   ) : (
                     <AnalysisSummary 

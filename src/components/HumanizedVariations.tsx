@@ -78,11 +78,7 @@ const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
   };
 
   const toggleExpandCard = (type: string) => {
-    if (expandedCard === type) {
-      setExpandedCard(null);
-    } else {
-      setExpandedCard(type);
-    }
+    setExpandedCard(expandedCard === type ? null : type);
   };
 
   return (
@@ -119,7 +115,7 @@ const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
               </div>
               <Progress 
                 value={variation.readabilityScore} 
-                className={`h-2 ${getReadabilityColor(variation.readabilityScore)}`}
+                className={getReadabilityColor(variation.readabilityScore)}
               />
               
               <div className="flex justify-between text-xs mt-1">
@@ -128,7 +124,7 @@ const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
               </div>
               <Progress 
                 value={variation.similarityScore}
-                className={`h-2 ${getSimilarityColor(variation.similarityScore)}`}
+                className={getSimilarityColor(variation.similarityScore)}
               />
             </div>
           </CardHeader>
