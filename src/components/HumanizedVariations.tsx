@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { CopyCheck, RefreshCw } from 'lucide-react';
+import { CopyCheck, RefreshCw, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface HumanizedVariationsProps {
@@ -82,16 +82,16 @@ const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
       {variations.map((variation) => (
         <Card 
           key={variation.type}
-          className={`relative transition-all overflow-hidden hover:shadow-md ${
-            expandedCard === variation.type ? 'h-auto' : 'h-[300px]'
+          className={`relative transition-all duration-300 overflow-hidden hover:shadow-lg ${
+            expandedCard === variation.type ? 'h-auto' : 'h-[320px]'
           }`}
           style={{ borderTop: `4px solid ${variation.color}` }}
         >
-          <CardHeader>
+          <CardHeader className="pb-2">
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="flex items-center gap-2">
@@ -103,44 +103,46 @@ const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
                 variant="outline"
                 size="icon"
                 onClick={() => onRefreshVariation(variation.type)}
-                className="flex-shrink-0"
+                className="flex-shrink-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Refresh this variation"
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex flex-col space-y-2 mt-2">
+            <div className="flex flex-col space-y-2 mt-3">
               <div className="flex justify-between text-xs">
-                <span>Readability: {getReadabilityLabel(variation.readabilityScore)}</span>
+                <span className="font-medium">Readability: {getReadabilityLabel(variation.readabilityScore)}</span>
                 <span>{variation.readabilityScore}%</span>
               </div>
               <Progress 
                 value={variation.readabilityScore} 
-                className={getReadabilityColor(variation.readabilityScore)}
+                className={`h-2 ${getReadabilityColor(variation.readabilityScore)}`}
               />
               
               <div className="flex justify-between text-xs mt-1">
-                <span>Similarity to Original: {getSimilarityLabel(variation.similarityScore)}</span>
+                <span className="font-medium">Similarity: {getSimilarityLabel(variation.similarityScore)}</span>
                 <span>{variation.similarityScore}%</span>
               </div>
               <Progress 
                 value={variation.similarityScore}
-                className={getSimilarityColor(variation.similarityScore)}
+                className={`h-2 ${getSimilarityColor(variation.similarityScore)}`}
               />
             </div>
           </CardHeader>
           <CardContent className={`relative ${
-            expandedCard === variation.type ? 'max-h-none' : 'max-h-24 overflow-hidden'
+            expandedCard === variation.type ? 'max-h-none pb-4' : 'max-h-24 overflow-hidden'
           }`}>
-            <p className="text-sm text-foreground/90">
+            <p className="text-sm text-foreground/90 leading-relaxed">
               {variation.text}
             </p>
             {expandedCard !== variation.type && (
               <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent"></div>
             )}
           </CardContent>
-          <CardFooter className="flex justify-between mt-auto">
+          <CardFooter className="flex justify-between mt-auto pt-2 border-t bg-muted/20">
             <Button
               variant="ghost"
+              size="sm"
               onClick={() => toggleExpandCard(variation.type)}
               className="text-xs"
             >
@@ -153,12 +155,17 @@ const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
                 className="text-xs"
                 onClick={() => onSelectVariation(variation.text)}
               >
+                <ExternalLink className="h-3 w-3 mr-1" />
                 Use This
               </Button>
               <Button
-                variant="outline"
+                variant={copiedVariation === variation.type ? "secondary" : "outline"}
                 size="sm"
-                className={`text-xs ${copiedVariation === variation.type ? 'bg-green-100 text-green-800 border-green-300' : ''}`}
+                className={`text-xs transition-all ${
+                  copiedVariation === variation.type 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-300' 
+                    : ''
+                }`}
                 onClick={() => copyToClipboard(variation.text, variation.type)}
               >
                 {copiedVariation === variation.type ? (
