@@ -1,12 +1,13 @@
+
 import React, { useState, useRef } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, RefreshCw, Search, Upload, UserPlus } from 'lucide-react';
+import { ArrowRight, RefreshCw, Search, Upload } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import PlagiarismScore from './PlagiarismScore';
 import HumanizedVariations from './HumanizedVariations';
 import AnalysisSummary from './AnalysisSummary';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TextAnalyzer = () => {
   const [inputText, setInputText] = useState('');
@@ -31,7 +32,6 @@ const TextAnalyzer = () => {
   }[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const { toast } = useToast();
 
   // Enhanced academic vocabulary transformation with more comprehensive word replacements
@@ -527,7 +527,7 @@ const TextAnalyzer = () => {
     };
   };
   
-  // Create a fifth corporate/business style variation
+  // Create a fifth business/corporate style variation
   const createBusinessVariation = (text: string) => {
     const businessReplacements: Record<string, string> = {
       'use': 'leverage',
@@ -774,65 +774,23 @@ const TextAnalyzer = () => {
         </p>
       </div>
       
-      <div className="flex justify-end mb-4">
-        <Collapsible
-          open={isSignUpOpen}
-          onOpenChange={setIsSignUpOpen}
-          className="w-full max-w-xs"
-        >
-          <CollapsibleTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-1.5 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:hover:bg-indigo-900/40"
-            >
-              <UserPlus className="h-4 w-4" />
-              <span>Sign Up</span>
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="overflow-hidden">
-            <div className="p-4 mt-2 bg-card rounded-lg border shadow-sm animate-slide-down">
-              <h3 className="font-medium mb-2">Create Your Account</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Sign up to save your analysis results and access premium features.
-              </p>
-              <div className="space-y-2">
-                <input 
-                  type="email"
-                  placeholder="Email address"
-                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-800"
-                />
-                <input 
-                  type="password"
-                  placeholder="Password"
-                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-800"
-                />
-                <Button size="sm" className="w-full bg-gradient-to-r from-indigo-500 to-purple-600">
-                  Create Free Account
-                </Button>
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
-      
       {!showResults ? (
         <div className="space-y-6 animate-fade-in">
-          <div className="glass-card p-6 bg-gradient-to-b from-white/90 to-white/70 dark:from-gray-900/90 dark:to-gray-900/70">
+          <div className="glass-card p-6 bg-gradient-to-b from-white/90 to-white/70 dark:from-gray-900/90 dark:to-gray-900/70 shadow-lg border-2 border-indigo-100 dark:border-indigo-900/30">
             <div className="mb-4">
-              <label htmlFor="content" className="block text-sm font-medium text-foreground mb-2">
+              <label htmlFor="content" className="block text-lg font-medium text-foreground mb-2">
                 Paste your content
               </label>
               <Textarea
                 id="content"
                 placeholder="Enter or paste your content here to analyze and humanize..."
-                className="min-h-[200px] resize-y border-indigo-100 focus-visible:ring-indigo-300 dark:border-indigo-900"
+                className="min-h-[250px] resize-y border-indigo-100 focus-visible:ring-indigo-300 dark:border-indigo-900 text-base"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
               />
             </div>
             
-            <div className="flex flex-wrap justify-between items-center mt-4 gap-2">
+            <div className="flex flex-wrap justify-between items-center mt-6 gap-2">
               <div>
                 <input
                   type="file"
@@ -844,7 +802,8 @@ const TextAnalyzer = () => {
                 <Button 
                   variant="outline" 
                   onClick={triggerFileUpload}
-                  className="border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:hover:bg-indigo-900/40"
+                  size="lg"
+                  className="border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:hover:bg-indigo-900/40 transition-all hover:scale-105"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Text File
@@ -854,7 +813,8 @@ const TextAnalyzer = () => {
               <Button 
                 onClick={analyzeText} 
                 disabled={isAnalyzing || !inputText.trim()}
-                className="space-x-2 min-w-[150px] bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                size="lg"
+                className="space-x-2 min-w-[180px] bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 transition-all hover:scale-105 hover:shadow-md"
               >
                 {isAnalyzing ? (
                   <>
@@ -892,41 +852,35 @@ const TextAnalyzer = () => {
             </div>
             
             <div className="lg:col-span-2 space-y-4">
-              <div className="bg-card rounded-lg shadow-sm border p-4">
-                <div className="flex space-x-1 mb-4 border-b">
-                  <button
-                    className={`px-4 py-2 text-sm font-medium transition-all ${
-                      currentTab === 'variations' ? 'border-b-2 border-indigo-500 text-indigo-500' : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                    onClick={() => setCurrentTab('variations')}
-                  >
-                    Humanized Variations
-                  </button>
-                  <button
-                    className={`px-4 py-2 text-sm font-medium transition-all ${
-                      currentTab === 'summary' ? 'border-b-2 border-indigo-500 text-indigo-500' : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                    onClick={() => setCurrentTab('summary')}
-                  >
-                    Analysis Summary
-                  </button>
-                </div>
-                
-                <div className="mt-4">
-                  {currentTab === 'variations' ? (
+              <div className="bg-card rounded-lg shadow-lg border p-4 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/95">
+                <Tabs 
+                  defaultValue="variations" 
+                  className="w-full" 
+                  onValueChange={(value) => setCurrentTab(value)}
+                >
+                  <TabsList className="mb-4 grid grid-cols-2 w-full bg-muted/80">
+                    <TabsTrigger value="variations" className="text-sm font-medium">
+                      Humanized Variations
+                    </TabsTrigger>
+                    <TabsTrigger value="summary" className="text-sm font-medium">
+                      Analysis Summary
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="variations" className="space-y-4 mt-2 focus-visible:outline-none focus-visible:ring-0">
                     <HumanizedVariations 
                       originalText={inputText}
                       variations={variations}
                       onRefreshVariation={refreshVariation}
                       onSelectVariation={(text) => setInputText(text)}
                     />
-                  ) : (
+                  </TabsContent>
+                  <TabsContent value="summary" className="focus-visible:outline-none focus-visible:ring-0">
                     <AnalysisSummary 
                       data={plagiarismData}
                       originalTextLength={inputText.length}
                     />
-                  )}
-                </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
           </div>

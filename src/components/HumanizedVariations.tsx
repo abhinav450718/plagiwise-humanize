@@ -28,7 +28,6 @@ const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
   onSelectVariation
 }) => {
   const { toast } = useToast();
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [copiedVariation, setCopiedVariation] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, type: string) => {
@@ -77,19 +76,16 @@ const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
     return "bg-green-500";
   };
 
-  const toggleExpandCard = (type: string) => {
-    setExpandedCard(expandedCard === type ? null : type);
-  };
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
       {variations.map((variation) => (
         <Card 
           key={variation.type}
-          className={`relative transition-all duration-300 overflow-hidden hover:shadow-lg ${
-            expandedCard === variation.type ? 'h-auto' : 'h-[320px]'
-          }`}
-          style={{ borderTop: `4px solid ${variation.color}` }}
+          className="relative transition-all duration-300 hover:shadow-lg h-full"
+          style={{ 
+            borderTop: `4px solid ${variation.color}`,
+            background: `linear-gradient(to bottom right, white, ${variation.color}05)`
+          }}
         >
           <CardHeader className="pb-2">
             <div className="flex justify-between items-center">
@@ -129,25 +125,10 @@ const HumanizedVariations: React.FC<HumanizedVariationsProps> = ({
               />
             </div>
           </CardHeader>
-          <CardContent className={`relative ${
-            expandedCard === variation.type ? 'max-h-none pb-4' : 'max-h-24 overflow-hidden'
-          }`}>
-            <p className="text-sm text-foreground/90 leading-relaxed">
-              {variation.text}
-            </p>
-            {expandedCard !== variation.type && (
-              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent"></div>
-            )}
+          <CardContent className="relative pb-4">
+            <p className="text-sm text-foreground/90 leading-relaxed">{variation.text}</p>
           </CardContent>
           <CardFooter className="flex justify-between mt-auto pt-2 border-t bg-muted/20">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleExpandCard(variation.type)}
-              className="text-xs"
-            >
-              {expandedCard === variation.type ? 'Show Less' : 'Show More'}
-            </Button>
             <div className="flex gap-2">
               <Button
                 variant="outline"

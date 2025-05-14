@@ -5,9 +5,9 @@ import TextAnalyzer from '@/components/TextAnalyzer';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/10">
       <Header />
-      <main className="container mx-auto pt-8 pb-16">
+      <main className="container mx-auto pt-8 pb-16 px-4">
         <TextAnalyzer />
       </main>
       
