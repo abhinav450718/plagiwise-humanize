@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -191,7 +190,6 @@ const TextAnalyzer = () => {
       'ascertain': 'find out',
       'endeavor': 'try',
       'implement': 'do',
-      'utilize': 'use',
       'monitor': 'keep an eye on',
       'allocate': 'give out',
       'conclude': 'finish up',
@@ -317,7 +315,6 @@ const TextAnalyzer = () => {
       'tell': 'narrate',
       'go': 'venture',
       'come': 'approach',
-      'see': 'behold',
       'hear': 'perceive',
       'touch': 'caress',
       'feel': 'sense',
@@ -582,7 +579,6 @@ const TextAnalyzer = () => {
       'idea': 'concept',
       'project': 'initiative',
       'meeting': 'sync',
-      'talk': 'discussion',
       'group': 'team',
       'person': 'individual',
       'customer': 'client',
@@ -590,7 +586,6 @@ const TextAnalyzer = () => {
       'boss': 'supervisor',
       'business': 'enterprise',
       'company': 'organization',
-      'pay': 'compensate',
       'job': 'role',
       'task': 'action item',
       'pay': 'remunerate',
