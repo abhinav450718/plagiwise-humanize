@@ -32,45 +32,143 @@ const TextAnalyzer = () => {
 
   const { toast } = useToast();
 
-  const createVariation1 = (text: string) => ({
-    type: 'academic',
-    text: text + ' (Rewritten with academic vocabulary and formal structure)',
-    label: 'Academic',
-    description: 'Formal academic style with scholarly language',
-    color: '#8B5CF6',
-    readabilityScore: Math.floor(Math.random() * 20) + 70,
-    similarityScore: Math.floor(Math.random() * 30) + 60,
-  });
+  // Helper function to rephrase text with academic vocabulary
+  const createAcademicVariation = (text: string) => {
+    // Replace common words with academic alternatives
+    const academicText = text
+      .replace(/show/gi, "demonstrate")
+      .replace(/use/gi, "utilize")
+      .replace(/make/gi, "formulate")
+      .replace(/think/gi, "postulate")
+      .replace(/big/gi, "substantial")
+      .replace(/small/gi, "minimal")
+      .replace(/good/gi, "advantageous")
+      .replace(/bad/gi, "detrimental")
+      .replace(/important/gi, "significant")
+      .replace(/start/gi, "commence")
+      .replace(/end/gi, "conclude")
+      .replace(/get/gi, "acquire")
+      .replace(/find/gi, "ascertain")
+      .replace(/help/gi, "facilitate")
+      .replace(/change/gi, "modify")
+      .replace(/look/gi, "examine")
+      .replace(/need/gi, "require")
+      .replace(/want/gi, "desire")
+      .replace(/look at/gi, "scrutinize")
+      .replace(/also/gi, "additionally")
+      .replace(/but/gi, "however")
+      .replace(/so/gi, "consequently");
+    
+    return {
+      type: 'academic',
+      text: academicText,
+      label: 'Academic',
+      description: 'Formal academic style with scholarly language',
+      color: '#8B5CF6',
+      readabilityScore: Math.floor(Math.random() * 20) + 70,
+      similarityScore: Math.floor(Math.random() * 30) + 60,
+    };
+  };
   
-  const createVariation2 = (text: string) => ({
-    type: 'casual',
-    text: text + ' (Reworded in a friendly, conversational tone)',
-    label: 'Conversational',
-    description: 'Casual and friendly tone',
-    color: '#0EA5E9',
-    readabilityScore: Math.floor(Math.random() * 20) + 80,
-    similarityScore: Math.floor(Math.random() * 30) + 50,
-  });
+  // Helper function to rephrase text with conversational tone
+  const createConversationalVariation = (text: string) => {
+    // Replace with more casual, conversational alternatives
+    const conversationalText = text
+      .replace(/therefore/gi, "so")
+      .replace(/however/gi, "but")
+      .replace(/furthermore/gi, "also")
+      .replace(/demonstrate/gi, "show")
+      .replace(/utilize/gi, "use")
+      .replace(/obtain/gi, "get")
+      .replace(/purchase/gi, "buy")
+      .replace(/sufficient/gi, "enough")
+      .replace(/assistance/gi, "help")
+      .replace(/attempt/gi, "try")
+      .replace(/inquire/gi, "ask")
+      .replace(/comprehend/gi, "understand")
+      .replace(/request/gi, "ask for")
+      .replace(/commence/gi, "start")
+      .replace(/terminate/gi, "end")
+      .replace(/consequently/gi, "so")
+      .replace(/additionally/gi, "also")
+      .replace(/subsequently/gi, "later");
+    
+    return {
+      type: 'casual',
+      text: conversationalText,
+      label: 'Conversational',
+      description: 'Casual and friendly tone',
+      color: '#0EA5E9',
+      readabilityScore: Math.floor(Math.random() * 20) + 80,
+      similarityScore: Math.floor(Math.random() * 30) + 50,
+    };
+  };
   
-  const createVariation3 = (text: string) => ({
-    type: 'creative',
-    text: text + ' (Transformed with vivid language and creative phrasing)',
-    label: 'Creative',
-    description: 'Creative and engaging style',
-    color: '#D946EF',
-    readabilityScore: Math.floor(Math.random() * 20) + 75,
-    similarityScore: Math.floor(Math.random() * 30) + 40,
-  });
+  // Helper function to rephrase text with creative language
+  const createCreativeVariation = (text: string) => {
+    // Add vivid language and creative phrasing
+    const creativeText = text
+      .replace(/see/gi, "visualize")
+      .replace(/big/gi, "enormous")
+      .replace(/small/gi, "tiny")
+      .replace(/walk/gi, "stroll")
+      .replace(/run/gi, "dash")
+      .replace(/happy/gi, "ecstatic")
+      .replace(/sad/gi, "melancholic")
+      .replace(/angry/gi, "furious")
+      .replace(/scared/gi, "terrified")
+      .replace(/tired/gi, "exhausted")
+      .replace(/house/gi, "dwelling")
+      .replace(/car/gi, "vehicle")
+      .replace(/good/gi, "spectacular")
+      .replace(/bad/gi, "dreadful")
+      .replace(/nice/gi, "delightful")
+      .replace(/mean/gi, "cruel")
+      .replace(/old/gi, "ancient")
+      .replace(/new/gi, "fresh")
+      .replace(/look/gi, "gaze")
+      .replace(/beautiful/gi, "stunning");
+    
+    return {
+      type: 'creative',
+      text: creativeText,
+      label: 'Creative',
+      description: 'Creative and engaging style',
+      color: '#D946EF',
+      readabilityScore: Math.floor(Math.random() * 20) + 75,
+      similarityScore: Math.floor(Math.random() * 30) + 40,
+    };
+  };
   
-  const createVariation4 = (text: string) => ({
-    type: 'concise',
-    text: text + ' (Streamlined for clarity and directness)',
-    label: 'Concise',
-    description: 'Clear and direct style',
-    color: '#F97316',
-    readabilityScore: Math.floor(Math.random() * 20) + 85,
-    similarityScore: Math.floor(Math.random() * 30) + 70,
-  });
+  // Helper function to create a concise version of the text
+  const createConciseVariation = (text: string) => {
+    // Make text more concise by removing filler words and phrases
+    const conciseText = text
+      .replace(/in order to/gi, "to")
+      .replace(/for the purpose of/gi, "to")
+      .replace(/due to the fact that/gi, "because")
+      .replace(/in spite of the fact that/gi, "although")
+      .replace(/in the event that/gi, "if")
+      .replace(/in my opinion/gi, "I think")
+      .replace(/as a matter of fact/gi, "actually")
+      .replace(/at this point in time/gi, "now")
+      .replace(/at the present time/gi, "currently")
+      .replace(/for the most part/gi, "mostly")
+      .replace(/in a manner of speaking/gi, "somewhat")
+      .replace(/in the final analysis/gi, "finally")
+      .replace(/until such time as/gi, "until")
+      .replace(/for all intents and purposes/gi, "effectively");
+    
+    return {
+      type: 'concise',
+      text: conciseText,
+      label: 'Concise',
+      description: 'Clear and direct style',
+      color: '#F97316',
+      readabilityScore: Math.floor(Math.random() * 20) + 85,
+      similarityScore: Math.floor(Math.random() * 30) + 70,
+    };
+  };
 
   const analyzeText = () => {
     if (!inputText.trim()) {
@@ -95,10 +193,10 @@ const TextAnalyzer = () => {
       
       // Create variations with proper structure
       const mockVariations = [
-        createVariation1(inputText),
-        createVariation2(inputText),
-        createVariation3(inputText),
-        createVariation4(inputText),
+        createAcademicVariation(inputText),
+        createConversationalVariation(inputText),
+        createCreativeVariation(inputText),
+        createConciseVariation(inputText),
       ];
       
       setPlagiarismData({
@@ -124,13 +222,13 @@ const TextAnalyzer = () => {
       if (variation.type === type) {
         switch (type) {
           case 'academic':
-            return createVariation1(inputText);
+            return createAcademicVariation(inputText);
           case 'casual':
-            return createVariation2(inputText);
+            return createConversationalVariation(inputText);
           case 'creative':
-            return createVariation3(inputText);
+            return createCreativeVariation(inputText);
           case 'concise':
-            return createVariation4(inputText);
+            return createConciseVariation(inputText);
           default:
             return variation;
         }
