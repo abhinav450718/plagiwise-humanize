@@ -1,12 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, RefreshCw, Search } from 'lucide-react';
+import { ArrowRight, RefreshCw, Search, Upload, UserPlus } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import PlagiarismScore from './PlagiarismScore';
 import HumanizedVariations from './HumanizedVariations';
 import AnalysisSummary from './AnalysisSummary';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const TextAnalyzer = () => {
   const [inputText, setInputText] = useState('');
@@ -30,143 +31,619 @@ const TextAnalyzer = () => {
     similarityScore: number;
   }[]>([]);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const { toast } = useToast();
 
-  // Helper function to rephrase text with academic vocabulary
+  // Enhanced academic vocabulary transformation with more comprehensive word replacements
   const createAcademicVariation = (text: string) => {
-    // Replace common words with academic alternatives
-    const academicText = text
-      .replace(/show/gi, "demonstrate")
-      .replace(/use/gi, "utilize")
-      .replace(/make/gi, "formulate")
-      .replace(/think/gi, "postulate")
-      .replace(/big/gi, "substantial")
-      .replace(/small/gi, "minimal")
-      .replace(/good/gi, "advantageous")
-      .replace(/bad/gi, "detrimental")
-      .replace(/important/gi, "significant")
-      .replace(/start/gi, "commence")
-      .replace(/end/gi, "conclude")
-      .replace(/get/gi, "acquire")
-      .replace(/find/gi, "ascertain")
-      .replace(/help/gi, "facilitate")
-      .replace(/change/gi, "modify")
-      .replace(/look/gi, "examine")
-      .replace(/need/gi, "require")
-      .replace(/want/gi, "desire")
-      .replace(/look at/gi, "scrutinize")
-      .replace(/also/gi, "additionally")
-      .replace(/but/gi, "however")
-      .replace(/so/gi, "consequently");
+    const academicReplacements: Record<string, string> = {
+      // Common words to academic alternatives
+      'show': 'demonstrate',
+      'use': 'utilize',
+      'make': 'formulate',
+      'think': 'postulate',
+      'big': 'substantial',
+      'small': 'minimal',
+      'good': 'advantageous',
+      'bad': 'detrimental',
+      'important': 'significant',
+      'start': 'commence',
+      'end': 'conclude',
+      'get': 'acquire',
+      'find': 'ascertain',
+      'help': 'facilitate',
+      'change': 'modify',
+      'look': 'examine',
+      'need': 'require',
+      'want': 'desire',
+      'look at': 'scrutinize',
+      'also': 'additionally',
+      'but': 'however',
+      'so': 'consequently',
+      
+      // Additional academic words
+      'about': 'regarding',
+      'after': 'subsequent to',
+      'before': 'prior to',
+      'now': 'presently',
+      'later': 'subsequently',
+      'many': 'numerous',
+      'few': 'limited',
+      'almost': 'nearly',
+      'like': 'comparable to',
+      'unlike': 'dissimilar to',
+      'same': 'identical',
+      'different': 'distinct',
+      'more': 'additional',
+      'less': 'diminished',
+      'often': 'frequently',
+      'sometimes': 'occasionally',
+      'never': 'in no instance',
+      'always': 'invariably',
+      'because': 'due to the fact that',
+      'if': 'provided that',
+      'then': 'subsequently',
+      'when': 'at such time as',
+      'where': 'in which location',
+      'how': 'by what method',
+      'why': 'for what reason',
+      'what': 'that which',
+      'who': 'which individual',
+      'yet': 'nevertheless',
+      'still': 'nonetheless',
+      'say': 'articulate',
+      'tell': 'inform',
+      'ask': 'inquire',
+      'answer': 'respond',
+      'learn': 'acquire knowledge',
+      'teach': 'instruct',
+      'create': 'construct',
+      'build': 'fabricate',
+      'destroy': 'dismantle',
+      'fix': 'rectify',
+      'break': 'fracture',
+      'solve': 'resolve',
+      'problem': 'dilemma',
+      'idea': 'concept',
+      'thought': 'contemplation',
+      'belief': 'conviction',
+      'view': 'perspective',
+      'opinion': 'assessment',
+      'feeling': 'sentiment',
+      'emotion': 'affective response',
+      'happy': 'content',
+      'sad': 'melancholic',
+      'angry': 'irate',
+      'afraid': 'apprehensive',
+      'sure': 'certain',
+      'maybe': 'perhaps'
+    };
+    
+    // Apply advanced replacement strategy with regular expressions
+    let academicText = text;
+    
+    // Replace exact words with word boundaries to avoid partial matches
+    for (const [common, academic] of Object.entries(academicReplacements)) {
+      const regex = new RegExp(`\\b${common}\\b`, 'gi');
+      academicText = academicText.replace(regex, academic);
+    }
+    
+    // Complex sentence structure transformations
+    academicText = academicText
+      .replace(/I think that/gi, 'It can be posited that')
+      .replace(/In my opinion/gi, 'From a scholarly perspective')
+      .replace(/To sum up/gi, 'In conclusion')
+      .replace(/To summarize/gi, 'To synthesize the aforementioned points')
+      .replace(/In other words/gi, 'To rephrase')
+      .replace(/For example/gi, 'To illustrate')
+      .replace(/I agree/gi, 'This analysis concurs')
+      .replace(/I disagree/gi, 'This perspective contests the notion')
+      .replace(/It seems that/gi, 'Evidence suggests that')
+      .replace(/This shows/gi, 'This demonstrates')
+      .replace(/This means/gi, 'This indicates');
     
     return {
       type: 'academic',
       text: academicText,
       label: 'Academic',
-      description: 'Formal academic style with scholarly language',
+      description: 'Formal academic style with scholarly vocabulary and complex structures',
       color: '#8B5CF6',
       readabilityScore: Math.floor(Math.random() * 20) + 70,
       similarityScore: Math.floor(Math.random() * 30) + 60,
     };
   };
   
-  // Helper function to rephrase text with conversational tone
+  // Enhanced conversational tone transformation with more natural speech patterns
   const createConversationalVariation = (text: string) => {
-    // Replace with more casual, conversational alternatives
-    const conversationalText = text
-      .replace(/therefore/gi, "so")
-      .replace(/however/gi, "but")
-      .replace(/furthermore/gi, "also")
-      .replace(/demonstrate/gi, "show")
-      .replace(/utilize/gi, "use")
-      .replace(/obtain/gi, "get")
-      .replace(/purchase/gi, "buy")
-      .replace(/sufficient/gi, "enough")
-      .replace(/assistance/gi, "help")
-      .replace(/attempt/gi, "try")
-      .replace(/inquire/gi, "ask")
-      .replace(/comprehend/gi, "understand")
-      .replace(/request/gi, "ask for")
-      .replace(/commence/gi, "start")
-      .replace(/terminate/gi, "end")
-      .replace(/consequently/gi, "so")
-      .replace(/additionally/gi, "also")
-      .replace(/subsequently/gi, "later");
+    const conversationalReplacements: Record<string, string> = {
+      // Formal to casual replacements
+      'therefore': 'so',
+      'however': 'but',
+      'furthermore': 'also',
+      'demonstrate': 'show',
+      'utilize': 'use',
+      'obtain': 'get',
+      'purchase': 'buy',
+      'sufficient': 'enough',
+      'assistance': 'help',
+      'attempt': 'try',
+      'inquire': 'ask',
+      'comprehend': 'understand',
+      'request': 'ask for',
+      'commence': 'start',
+      'terminate': 'end',
+      'consequently': 'so',
+      'additionally': 'also',
+      'subsequently': 'later',
+      
+      // Additional conversational replacements
+      'regarding': 'about',
+      'numerous': 'a lot of',
+      'currently': 'right now',
+      'previously': 'before',
+      'observe': 'see',
+      'consider': 'think about',
+      'facilitate': 'help out',
+      'indicate': 'show',
+      'require': 'need',
+      'proceed': 'go ahead',
+      'ascertain': 'find out',
+      'endeavor': 'try',
+      'implement': 'do',
+      'utilize': 'use',
+      'monitor': 'keep an eye on',
+      'allocate': 'give out',
+      'conclude': 'finish up',
+      'expedite': 'speed up',
+      'formulate': 'come up with',
+      'incorporate': 'add in',
+      'necessitate': 'need',
+      'obligated': 'have to',
+      'procure': 'get',
+      'significant': 'important',
+      'specifications': 'details',
+      'substantiate': 'back up',
+      'pertaining to': 'about',
+      'due to the fact that': 'because',
+      'in the event that': 'if',
+      'with regard to': 'about',
+      'at this point in time': 'now',
+      'for the purpose of': 'to',
+      'in the near future': 'soon',
+      'in spite of the fact that': 'although',
+      'it is important to note that': 'note that',
+      'on the grounds that': 'because',
+      'in accordance with': 'following',
+      'in the majority of instances': 'usually'
+    };
+    
+    // Apply advanced replacement strategy
+    let conversationalText = text;
+    
+    // Replace exact words with word boundaries
+    for (const [formal, casual] of Object.entries(conversationalReplacements)) {
+      const regex = new RegExp(`\\b${formal}\\b`, 'gi');
+      conversationalText = conversationalText.replace(regex, casual);
+    }
+    
+    // Add conversational fillers and shortenings
+    conversationalText = conversationalText
+      .replace(/I am/gi, "I'm")
+      .replace(/You are/gi, "You're")
+      .replace(/They are/gi, "They're")
+      .replace(/We are/gi, "We're")
+      .replace(/He is/gi, "He's")
+      .replace(/She is/gi, "She's")
+      .replace(/It is/gi, "It's")
+      .replace(/That is/gi, "That's")
+      .replace(/There is/gi, "There's")
+      .replace(/There are/gi, "There're")
+      .replace(/who is/gi, "who's")
+      .replace(/what is/gi, "what's")
+      .replace(/where is/gi, "where's")
+      .replace(/when is/gi, "when's")
+      .replace(/why is/gi, "why's")
+      .replace(/how is/gi, "how's")
+      .replace(/is not/gi, "isn't")
+      .replace(/are not/gi, "aren't")
+      .replace(/was not/gi, "wasn't")
+      .replace(/were not/gi, "weren't")
+      .replace(/have not/gi, "haven't")
+      .replace(/has not/gi, "hasn't")
+      .replace(/had not/gi, "hadn't")
+      .replace(/will not/gi, "won't")
+      .replace(/would not/gi, "wouldn't")
+      .replace(/should not/gi, "shouldn't")
+      .replace(/could not/gi, "couldn't")
+      .replace(/cannot/gi, "can't")
+      .replace(/do not/gi, "don't")
+      .replace(/does not/gi, "doesn't")
+      .replace(/did not/gi, "didn't");
+    
+    // Add conversation starters/transitions
+    if (Math.random() > 0.7) {
+      const starters = [
+        "Look, ", 
+        "Well, ", 
+        "So, ", 
+        "Y'know, ", 
+        "Honestly, ", 
+        "Basically, ", 
+        "I mean, "
+      ];
+      const randomStarter = starters[Math.floor(Math.random() * starters.length)];
+      conversationalText = randomStarter + conversationalText.charAt(0).toLowerCase() + conversationalText.slice(1);
+    }
     
     return {
       type: 'casual',
       text: conversationalText,
       label: 'Conversational',
-      description: 'Casual and friendly tone',
+      description: 'Casual and friendly tone with everyday language',
       color: '#0EA5E9',
       readabilityScore: Math.floor(Math.random() * 20) + 80,
       similarityScore: Math.floor(Math.random() * 30) + 50,
     };
   };
   
-  // Helper function to rephrase text with creative language
+  // Enhanced creative language transformation with rich vocabulary and expressive style
   const createCreativeVariation = (text: string) => {
-    // Add vivid language and creative phrasing
-    const creativeText = text
-      .replace(/see/gi, "visualize")
-      .replace(/big/gi, "enormous")
-      .replace(/small/gi, "tiny")
-      .replace(/walk/gi, "stroll")
-      .replace(/run/gi, "dash")
-      .replace(/happy/gi, "ecstatic")
-      .replace(/sad/gi, "melancholic")
-      .replace(/angry/gi, "furious")
-      .replace(/scared/gi, "terrified")
-      .replace(/tired/gi, "exhausted")
-      .replace(/house/gi, "dwelling")
-      .replace(/car/gi, "vehicle")
-      .replace(/good/gi, "spectacular")
-      .replace(/bad/gi, "dreadful")
-      .replace(/nice/gi, "delightful")
-      .replace(/mean/gi, "cruel")
-      .replace(/old/gi, "ancient")
-      .replace(/new/gi, "fresh")
-      .replace(/look/gi, "gaze")
-      .replace(/beautiful/gi, "stunning");
+    const creativeReplacements: Record<string, string> = {
+      // Standard to creative replacements
+      'see': 'visualize',
+      'big': 'enormous',
+      'small': 'tiny',
+      'walk': 'stroll',
+      'run': 'dash',
+      'happy': 'ecstatic',
+      'sad': 'melancholic',
+      'angry': 'furious',
+      'scared': 'terrified',
+      'tired': 'exhausted',
+      'house': 'dwelling',
+      'car': 'vehicle',
+      'good': 'spectacular',
+      'bad': 'dreadful',
+      'nice': 'delightful',
+      'mean': 'cruel',
+      'old': 'ancient',
+      'new': 'fresh',
+      'look': 'gaze',
+      'beautiful': 'stunning',
+      
+      // Additional creative replacements
+      'say': 'proclaim',
+      'tell': 'narrate',
+      'go': 'venture',
+      'come': 'approach',
+      'see': 'behold',
+      'hear': 'perceive',
+      'touch': 'caress',
+      'feel': 'sense',
+      'think': 'contemplate',
+      'know': 'comprehend',
+      'understand': 'fathom',
+      'remember': 'recall',
+      'forget': 'disregard',
+      'want': 'desire',
+      'need': 'require',
+      'like': 'adore',
+      'love': 'cherish',
+      'hate': 'despise',
+      'fear': 'dread',
+      'hope': 'aspire',
+      'try': 'endeavor',
+      'do': 'accomplish',
+      'make': 'craft',
+      'build': 'construct',
+      'create': 'fashion',
+      'destroy': 'demolish',
+      'break': 'shatter',
+      'fix': 'restore',
+      'change': 'transform',
+      'start': 'initiate',
+      'stop': 'cease',
+      'continue': 'persist',
+      'finish': 'conclude',
+      'begin': 'commence',
+      'end': 'culminate',
+      'find': 'discover',
+      'lose': 'misplace',
+      'hide': 'conceal',
+      'seek': 'pursue',
+      'search': 'scour',
+      'look for': 'hunt for',
+      'get': 'obtain',
+      'give': 'bestow',
+      'take': 'seize',
+      'put': 'place',
+      'move': 'shift',
+      'stay': 'remain',
+      'leave': 'depart',
+      'arrive': 'emerge',
+      'fast': 'swift',
+      'slow': 'gradual',
+      'hard': 'arduous',
+      'easy': 'effortless',
+      'difficult': 'challenging',
+      'simple': 'elementary',
+      'complex': 'intricate',
+      'clear': 'transparent',
+      'dark': 'shadowy'
+    };
+    
+    // Apply advanced replacement strategy
+    let creativeText = text;
+    
+    // Replace exact words with word boundaries
+    for (const [standard, creative] of Object.entries(creativeReplacements)) {
+      const regex = new RegExp(`\\b${standard}\\b`, 'gi');
+      creativeText = creativeText.replace(regex, creative);
+    }
+    
+    // Add vivid descriptors and metaphors
+    const sentences = creativeText.split(/(?<=[.!?])\s+/);
+    const enhancedSentences = sentences.map(sentence => {
+      // Randomly enhance some sentences with descriptive phrases
+      if (Math.random() > 0.7) {
+        const descriptiveAdditions = [
+          ", like a scene from a vibrant painting,",
+          ", reminiscent of a distant memory,",
+          ", dancing like shadows in the twilight,",
+          ", standing out in stark relief,",
+          ", weaving an intricate tapestry of thought,"
+        ];
+        const randomAddition = descriptiveAdditions[Math.floor(Math.random() * descriptiveAdditions.length)];
+        
+        // Find a good position to insert the descriptive phrase
+        const insertPosition = sentence.length > 40 
+          ? sentence.substring(0, Math.floor(sentence.length / 2)).lastIndexOf(',') + 1
+          : sentence.length > 20 
+            ? sentence.indexOf(' ', 10)
+            : -1;
+        
+        if (insertPosition > 0) {
+          sentence = sentence.substring(0, insertPosition) + randomAddition + sentence.substring(insertPosition);
+        }
+      }
+      return sentence;
+    });
+    
+    creativeText = enhancedSentences.join(' ');
     
     return {
       type: 'creative',
       text: creativeText,
       label: 'Creative',
-      description: 'Creative and engaging style',
+      description: 'Vivid, expressive style with rich vocabulary and imagery',
       color: '#D946EF',
       readabilityScore: Math.floor(Math.random() * 20) + 75,
       similarityScore: Math.floor(Math.random() * 30) + 40,
     };
   };
   
-  // Helper function to create a concise version of the text
+  // Enhanced concise variation with focus on clarity and brevity
   const createConciseVariation = (text: string) => {
-    // Make text more concise by removing filler words and phrases
-    const conciseText = text
-      .replace(/in order to/gi, "to")
-      .replace(/for the purpose of/gi, "to")
-      .replace(/due to the fact that/gi, "because")
-      .replace(/in spite of the fact that/gi, "although")
-      .replace(/in the event that/gi, "if")
-      .replace(/in my opinion/gi, "I think")
-      .replace(/as a matter of fact/gi, "actually")
-      .replace(/at this point in time/gi, "now")
-      .replace(/at the present time/gi, "currently")
-      .replace(/for the most part/gi, "mostly")
-      .replace(/in a manner of speaking/gi, "somewhat")
-      .replace(/in the final analysis/gi, "finally")
-      .replace(/until such time as/gi, "until")
-      .replace(/for all intents and purposes/gi, "effectively");
+    // Advanced trimming of wordy phrases
+    const wordyPhrases: Record<string, string> = {
+      'in order to': 'to',
+      'for the purpose of': 'to',
+      'due to the fact that': 'because',
+      'in spite of the fact that': 'although',
+      'in the event that': 'if',
+      'in my opinion': 'I think',
+      'as a matter of fact': 'actually',
+      'at this point in time': 'now',
+      'at the present time': 'currently',
+      'for the most part': 'mostly',
+      'in a manner of speaking': 'somewhat',
+      'in the final analysis': 'finally',
+      'until such time as': 'until',
+      'for all intents and purposes': 'effectively',
+      'in the nature of': 'like',
+      'with the exception of': 'except',
+      'in the near future': 'soon',
+      'in close proximity to': 'near',
+      'in the majority of instances': 'usually',
+      'it is often the case that': 'often',
+      'there is no doubt that': 'clearly',
+      'on a regular basis': 'regularly',
+      'it is interesting to note that': '',
+      'it should be noted that': '',
+      'it is important to note that': '',
+      'it is significant that': '',
+      'it is worth noting that': '',
+      'it is noteworthy that': '',
+      'needless to say': '',
+      'as you can see': '',
+      'as already stated': '',
+      'as mentioned earlier': '',
+      'in the process of': '',
+      'in conjunction with': 'with',
+      'with reference to': 'about',
+      'with regard to': 'about',
+      'in relation to': 'about',
+      'in respect to': 'about',
+      'in the case of': 'for',
+      'in the context of': 'in',
+      'on the basis of': 'by',
+      'on the grounds that': 'because',
+      'on the occasion of': 'during',
+      'on the subject of': 'about',
+      'at the conclusion of': 'after',
+      'prior to the start of': 'before'
+    };
     
+    // Apply advanced replacement strategy
+    let conciseText = text;
+    
+    // Replace wordy phrases
+    for (const [wordy, concise] of Object.entries(wordyPhrases)) {
+      const regex = new RegExp(wordy, 'gi');
+      conciseText = conciseText.replace(regex, concise);
+    }
+    
+    // Remove redundant words and phrases
+    conciseText = conciseText
+      .replace(/\b(very|really|quite|extremely|actually|basically|simply|just)\s+/gi, '')
+      .replace(/\b(absolutely|completely|totally|entirely|utterly|wholly)\s+/gi, '')
+      .replace(/\b(begin to|start to|commence to)\s+/gi, '')
+      .replace(/\b(each and every|any and all|full and complete|true and accurate)\b/gi, m => m.split(' and ')[0])
+      .replace(/\b(first and foremost)\b/gi, 'first')
+      .replace(/\b(various different|repeat again|return back|completely eliminate)\b/gi, m => m.split(' ')[1]);
+    
+    // Simplify verbs
+    conciseText = conciseText
+      .replace(/\b(is able to|are able to|was able to|were able to)\b/gi, 'can')
+      .replace(/\b(will be able to)\b/gi, 'can')
+      .replace(/\b(has got|have got)\b/gi, 'has')
+      .replace(/\b(make a decision)\b/gi, 'decide')
+      .replace(/\b(give consideration to)\b/gi, 'consider')
+      .replace(/\b(make a statement)\b/gi, 'state')
+      .replace(/\b(provide an explanation)\b/gi, 'explain')
+      .replace(/\b(make an assumption)\b/gi, 'assume')
+      .replace(/\b(reach a conclusion)\b/gi, 'conclude')
+      .replace(/\b(take into consideration)\b/gi, 'consider');
+      
+    // Remove nominalizations (converting verbs to nouns)
+    conciseText = conciseText
+      .replace(/\b(make a recommendation)\b/gi, 'recommend')
+      .replace(/\b(provide a description of)\b/gi, 'describe')
+      .replace(/\b(perform an analysis of)\b/gi, 'analyze')
+      .replace(/\b(conduct an investigation of)\b/gi, 'investigate')
+      .replace(/\b(make a determination)\b/gi, 'determine')
+      .replace(/\b(take into account)\b/gi, 'consider')
+      .replace(/\b(come to the realization)\b/gi, 'realize')
+      .replace(/\b(make reference to)\b/gi, 'refer to')
+      .replace(/\b(provide assistance to)\b/gi, 'help')
+      .replace(/\b(give authorization to)\b/gi, 'authorize');
+      
     return {
       type: 'concise',
       text: conciseText,
       label: 'Concise',
-      description: 'Clear and direct style',
+      description: 'Clear and direct style focused on brevity and efficiency',
       color: '#F97316',
       readabilityScore: Math.floor(Math.random() * 20) + 85,
       similarityScore: Math.floor(Math.random() * 30) + 70,
+    };
+  };
+  
+  // Create a fifth corporate/business style variation
+  const createBusinessVariation = (text: string) => {
+    const businessReplacements: Record<string, string> = {
+      'use': 'leverage',
+      'start': 'initiate',
+      'make': 'implement',
+      'think': 'strategize',
+      'say': 'communicate',
+      'tell': 'convey',
+      'help': 'support',
+      'show': 'demonstrate',
+      'look': 'analyze',
+      'get': 'acquire',
+      'give': 'provide',
+      'need': 'require',
+      'want': 'seek',
+      'change': 'transition',
+      'grow': 'scale',
+      'fix': 'optimize',
+      'do': 'execute',
+      'buy': 'procure',
+      'sell': 'monetize',
+      'lead': 'spearhead',
+      'improve': 'enhance',
+      'increase': 'maximize',
+      'decrease': 'minimize',
+      'create': 'develop',
+      'end': 'finalize',
+      'plan': 'strategize',
+      'talk': 'dialogue',
+      'meet': 'interface',
+      'learn': 'onboard',
+      'solve': 'address',
+      'try': 'pilot',
+      'work': 'operate',
+      'teach': 'train',
+      'build': 'construct',
+      'find': 'identify',
+      'see': 'observe',
+      'know': 'recognize',
+      'like': 'prefer',
+      'believe': 'maintain',
+      'compete': 'position',
+      'advance': 'progress',
+      'control': 'manage',
+      'money': 'capital',
+      'value': 'equity',
+      'goal': 'objective',
+      'problem': 'challenge',
+      'idea': 'concept',
+      'project': 'initiative',
+      'meeting': 'sync',
+      'talk': 'discussion',
+      'group': 'team',
+      'person': 'individual',
+      'customer': 'client',
+      'worker': 'associate',
+      'boss': 'supervisor',
+      'business': 'enterprise',
+      'company': 'organization',
+      'pay': 'compensate',
+      'job': 'role',
+      'task': 'action item',
+      'pay': 'remunerate',
+      'fire': 'terminate',
+      'hire': 'onboard'
+    };
+    
+    // Apply advanced replacement strategy
+    let businessText = text;
+    
+    // Replace exact words with word boundaries
+    for (const [standard, business] of Object.entries(businessReplacements)) {
+      const regex = new RegExp(`\\b${standard}\\b`, 'gi');
+      businessText = businessText.replace(regex, business);
+    }
+    
+    // Add business jargon phrases
+    const sentences = businessText.split(/(?<=[.!?])\s+/);
+    const enhancedSentences = sentences.map(sentence => {
+      // Randomly enhance some sentences with business jargon
+      if (Math.random() > 0.8) {
+        const jargonAdditions = [
+          " in order to drive results",
+          " to maximize stakeholder value",
+          " with a focus on ROI",
+          " aligned with our core competencies",
+          " to maintain a competitive advantage",
+          " as we pivot to new opportunities",
+          " to achieve synergistic outcomes",
+          " while optimizing operational efficiency",
+          " leveraging our core strengths",
+          " with end-to-end solutions"
+        ];
+        const randomAddition = jargonAdditions[Math.floor(Math.random() * jargonAdditions.length)];
+        
+        // Add at the end of sentence
+        if (sentence.match(/[.!?]$/)) {
+          sentence = sentence.replace(/[.!?]$/, randomAddition + ".");
+        }
+      }
+      return sentence;
+    });
+    
+    businessText = enhancedSentences.join(' ');
+    
+    return {
+      type: 'business',
+      text: businessText,
+      label: 'Business',
+      description: 'Professional corporate style with strategic terminology',
+      color: '#6366F1',
+      readabilityScore: Math.floor(Math.random() * 20) + 65,
+      similarityScore: Math.floor(Math.random() * 30) + 55,
     };
   };
 
@@ -191,12 +668,13 @@ const TextAnalyzer = () => {
       const aiSources = ['ChatGPT-3.5', 'ChatGPT-4', 'Claude', 'Bard', 'Jasper'];
       const randomSource = aiSources[Math.floor(Math.random() * aiSources.length)];
       
-      // Create variations with proper structure
+      // Create all five variations with proper structure
       const mockVariations = [
         createAcademicVariation(inputText),
         createConversationalVariation(inputText),
         createCreativeVariation(inputText),
         createConciseVariation(inputText),
+        createBusinessVariation(inputText)
       ];
       
       setPlagiarismData({
@@ -229,6 +707,8 @@ const TextAnalyzer = () => {
             return createCreativeVariation(inputText);
           case 'concise':
             return createConciseVariation(inputText);
+          case 'business':
+            return createBusinessVariation(inputText);
           default:
             return variation;
         }
@@ -255,20 +735,94 @@ const TextAnalyzer = () => {
     });
     setVariations([]);
   };
+  
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Only accept text files
+    if (!file.type.includes('text') && !file.name.endsWith('.txt') && !file.name.endsWith('.md')) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload a text file (.txt, .md).",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      if (content) {
+        setInputText(content);
+        toast({
+          title: "File Uploaded",
+          description: `${file.name} has been loaded successfully.`,
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+  
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
+      <div className="text-center space-y-3 mb-8">
+        <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent">
+          WriteRight-AI
+        </h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          Redefining Plagiarism Detection with AI-Powered Humanization and Ethical Text Transformation
+        </p>
+      </div>
+      
+      <div className="flex justify-end mb-4">
+        <Collapsible
+          open={isSignUpOpen}
+          onOpenChange={setIsSignUpOpen}
+          className="w-full max-w-xs"
+        >
+          <CollapsibleTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1.5 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:hover:bg-indigo-900/40"
+            >
+              <UserPlus className="h-4 w-4" />
+              <span>Sign Up</span>
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="overflow-hidden">
+            <div className="p-4 mt-2 bg-card rounded-lg border shadow-sm animate-slide-down">
+              <h3 className="font-medium mb-2">Create Your Account</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Sign up to save your analysis results and access premium features.
+              </p>
+              <div className="space-y-2">
+                <input 
+                  type="email"
+                  placeholder="Email address"
+                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-800"
+                />
+                <input 
+                  type="password"
+                  placeholder="Password"
+                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-800"
+                />
+                <Button size="sm" className="w-full bg-gradient-to-r from-indigo-500 to-purple-600">
+                  Create Free Account
+                </Button>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+      
       {!showResults ? (
         <div className="space-y-6 animate-fade-in">
-          <div className="text-center space-y-3 mb-8">
-            <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent">
-              WriteRight-AI: Content Humanizer & Plagiarism Detector
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Detect AI-generated text, analyze plagiarism, and transform content into undetectable human-like writing.
-            </p>
-          </div>
-          
           <div className="glass-card p-6 bg-gradient-to-b from-white/90 to-white/70 dark:from-gray-900/90 dark:to-gray-900/70">
             <div className="mb-4">
               <label htmlFor="content" className="block text-sm font-medium text-foreground mb-2">
@@ -283,7 +837,25 @@ const TextAnalyzer = () => {
               />
             </div>
             
-            <div className="flex justify-end mt-4">
+            <div className="flex flex-wrap justify-between items-center mt-4 gap-2">
+              <div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".txt,.md,text/plain"
+                  className="hidden"
+                />
+                <Button 
+                  variant="outline" 
+                  onClick={triggerFileUpload}
+                  className="border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:hover:bg-indigo-900/40"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Text File
+                </Button>
+              </div>
+              
               <Button 
                 onClick={analyzeText} 
                 disabled={isAnalyzing || !inputText.trim()}
